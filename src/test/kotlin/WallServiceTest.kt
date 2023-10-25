@@ -1,5 +1,8 @@
 import data.*
 import data.attachments.*
+import exceptions.CommentNotFoundException
+import exceptions.IncorrectReasonException
+import exceptions.PostNotFoundException
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -33,7 +36,7 @@ class WallServiceTest {
             name = "name",
             type = "type",
         ),
-        comments = Comment(
+        comments = Comments(
             count = 3,
             canPost = true,
             groupsCanPost = false,
@@ -88,6 +91,26 @@ class WallServiceTest {
 
     private val postToUpdate = postToCreate.copy(id = 1, friendsOnly = false)
 
+    private val comment = Comment(
+        id = 1,
+        fromId = 1,
+        date = 1,
+        text = "Comment",
+        donut = Donut(
+            isDon = false,
+            placeholder = "Placeholder",
+        ),
+        replyToComment = 1,
+        replyToUser = 1,
+        thread = Thread(
+            count = 1,
+            items = emptyArray<Comment>(),
+            canPost = true,
+            showReplyButton = true,
+            groupsCanPost = false,
+        )
+    )
+
     @Before
     fun prepare() {
         WallService.clear()
@@ -110,5 +133,37 @@ class WallServiceTest {
     fun shouldNotUpdateIfPostNotExists() {
         val result = WallService.update(postToUpdate)
         assertEquals(false, result)
+    }
+
+    @Test
+    fun shouldAddComment() {
+        val addedPost = WallService.add(postToCreate)
+        val addedComment = WallService.createComment(addedPost.id, comment)
+        assertEquals(comment, addedComment)
+    }
+
+    @Test(expected = PostNotFoundException::class)
+    fun shouldThrowPostNotFroundExceptionIfPostNotExists() {
+        WallService.createComment(1, comment)
+    }
+
+    @Test(expected = CommentNotFoundException::class)
+    fun shouldThrowCommentNotFroundExceptionIfCommentNotExists() {
+        WallService.reportComment(1, 1, 1)
+    }
+
+    @Test(expected = IncorrectReasonException::class)
+    fun shouldThrowIncorrectReasonExceptionIfReasonValueIsOutOfBoundaries() {
+        val addedPost = WallService.add(postToCreate)
+        val addedComment = WallService.createComment(addedPost.id, comment)
+        WallService.reportComment(1, addedComment.id, 9)
+    }
+
+    @Test
+    fun shouldAddReport() {
+        val addedPost = WallService.add(postToCreate)
+        val addedComment = WallService.createComment(addedPost.id, comment)
+        val result = WallService.reportComment(1, addedComment.id, 8)
+        assertEquals(1, result)
     }
 }
