@@ -82,7 +82,7 @@ class ChatServiceTest {
 
     @Test
     fun shouldReturn0IfDeleterIsNotMemberOfChat() {
-        val message = ChatService.createNewMessage(1, 2, "New Message")
+        ChatService.createNewMessage(1, 2, "New Message")
         val res = ChatService.deleteMessage(3,1)
         Assert.assertEquals(0, res)
     }
@@ -117,14 +117,14 @@ class ChatServiceTest {
         val chats = ChatService.getChats(1)
         val res = ChatService.getLastChatMessages(chats[0].id, 2)
         Assert.assertEquals(2, res.size)
-        Assert.assertEquals(mes2, res[0])
-        Assert.assertEquals(mes3, res[1])
+        Assert.assertEquals(mes3, res[0])
+        Assert.assertEquals(mes2, res[1])
     }
 
     @Test(expected = NoMessagesFoundException :: class)
     fun shouldThrowMessagesNotFoundExceptionForLastMessagesSearch() {
         val chat = ChatService.createChat(1, 2)
-        val res = ChatService.getLastChatMessages(chat.id, 2)
+        ChatService.getLastChatMessages(chat.id, 2)
     }
 
     @Test(expected = ChatNotFoundException :: class)
@@ -148,8 +148,8 @@ class ChatServiceTest {
 
     @Test(expected = NoMessagesFoundException :: class)
     fun shouldThrowMessagesNotFoundExceptionForParticipantMessages() {
-        val chat = ChatService.createChat(1, 2)
-        val res = ChatService.getParticipantMessages(1, 2, 2)
+        ChatService.createChat(1, 2)
+        ChatService.getParticipantMessages(1, 2, 2)
     }
 
     @Test(expected = ChatNotFoundException :: class)
